@@ -738,6 +738,14 @@ function showApp() {
 window.addEventListener('DOMContentLoaded', () => {
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential });
   google.accounts.id.renderButton(document.querySelector('.google-btn'), { type: 'standard' });
+
+  const svgEl = document.querySelector('.auth-brand-logo svg');
+  if (svgEl) {
+    const link = document.createElement('link');
+    link.rel = 'icon'; link.type = 'image/svg+xml';
+    link.href = 'data:image/svg+xml,' + encodeURIComponent(new XMLSerializer().serializeToString(svgEl));
+    document.head.appendChild(link);
+  }
 });
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
