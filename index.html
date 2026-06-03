@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NinjaGlobal — Trade Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --bg:        #F4F6F9;
+    --bg2:       #FFFFFF;
+    --bg3:       #F0F2F6;
+    --bg4:       #E8EBF1;
+    --border:    #E2E6EE;
+    --border2:   #CDD3E0;
+    --text:      #1A1F2E;
+    --text2:     #5A6278;
+    --text3:     #9AA0B4;
+
+    /* Brand from logo */
+    --green:     #2AAD5E;
+    --green-mid: #1E8A4A;
+    --green-dim: rgba(42,173,94,0.10);
+    --orange:    #F5931E;
+    --orange-dim:rgba(245,147,30,0.10);
+    --blue:      #2F4FCC;
+    --blue-dim:  rgba(47,79,204,0.10);
+    --pink:      #E8197C;
+    --pink-dim:  rgba(232,25,124,0.10);
+
+    /* Semantic */
+    --success:      var(--green);
+    --success-dim:  var(--green-dim);
+    --warning:      var(--orange);
+    --warning-dim:  var(--orange-dim);
+    --danger:       #E03E3E;
+    --danger-dim:   rgba(224,62,62,0.10);
+    --info:         var(--blue);
+    --info-dim:     var(--blue-dim);
+    --purple:       #7B5EFF;
+    --purple-dim:   rgba(123,94,255,0.10);
+
+    /* Lane colours */
+    --goods:     var(--blue);
+    --goods-dim: var(--blue-dim);
+    --docs:      var(--green);
+    --docs-dim:  var(--green-dim);
+    --funds:     var(--orange);
+    --funds-dim: var(--orange-dim);
+
+    --font: 'Outfit', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --r:    10px;
+    --r-sm: 6px;
+    --shadow: 0 1px 3px rgba(26,31,46,0.06), 0 4px 12px rgba(26,31,46,0.04);
+    --shadow-md: 0 2px 8px rgba(26,31,46,0.08), 0 8px 24px rgba(26,31,46,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── AUTH ── */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; gap: 28px;
+    background: linear-gradient(145deg, #EDF5FF 0%, #F4F9F0 50%, #FFF4EC 100%);
+  }
+  .auth-brand { display: flex; align-items: center; gap: 12px; }
+  .auth-brand-logo { width: 48px; height: 48px; display:inline-flex; } .auth-brand-logo svg { width:48px; height:48px; }
+  .auth-brand-name { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .auth-brand-name span { color: var(--green); }
+  .auth-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px 36px; width: 380px;
+    text-align: center; box-shadow: var(--shadow-md);
+  }
+  .auth-title { font-size: 19px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .auth-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 12px 20px; border-radius: var(--r-sm);
+    background: var(--bg2); border: 1.5px solid var(--border2);
+    color: var(--text); font-family: var(--font); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+  }
+  .google-btn:hover { border-color: var(--green); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .auth-note { font-size: 11px; color: var(--text3); margin-top: 14px; }
+
+  /* ── APP ── */
+  #app { display: none; }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 56px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo { width: 32px; height: 32px; display:inline-flex; } .header-logo svg { width:32px; height:32px; }
+  .header-divider { width: 1px; height: 20px; background: var(--border2); }
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.2px; }
+  .header-title span { color: var(--text3); font-weight: 400; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .last-updated { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .user-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 10px 5px 5px; border-radius: 20px;
+    background: var(--bg3); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text2);
+  }
+  .user-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+  }
+  .refresh-btn {
+    padding: 6px 12px; border-radius: var(--r-sm);
+    background: transparent; border: 1px solid var(--border2);
+    color: var(--text2); font-family: var(--font); font-size: 12px;
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .refresh-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .refresh-btn.spinning i { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── MAIN ── */
+  .main { padding: 20px 24px; max-width: 1440px; margin: 0 auto; }
+
+  /* ── SUMMARY STRIP ── */
+  .summary-strip { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 20px; }
+  .summary-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 16px 18px;
+    box-shadow: var(--shadow); transition: box-shadow 0.15s, transform 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .summary-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .sc-blue::before   { background: var(--blue); }
+  .sc-green::before  { background: var(--green); }
+  .sc-purple::before { background: var(--purple); }
+  .sc-orange::before { background: var(--orange); }
+  .sc-red::before    { background: var(--danger); }
+  .summary-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .sc-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .sc-value { font-size: 28px; font-weight: 700; font-family: var(--mono); letter-spacing: -1px; line-height: 1; }
+  .sc-value.blue   { color: var(--blue);   }
+  .sc-value.green  { color: var(--green);  }
+  .sc-value.purple { color: var(--purple); }
+  .sc-value.orange { color: var(--orange); }
+  .sc-value.red    { color: var(--danger); }
+  .sc-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+  /* ── CONTROLS ── */
+  .controls { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 300px; }
+  .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; pointer-events: none; }
+  .search-input {
+    width: 100%; padding: 8px 12px 8px 32px; border-radius: var(--r-sm);
+    background: var(--bg2); border: 1px solid var(--border2);
+    color: var(--text); font-family: var(--font); font-size: 13px; outline: none;
+    transition: border-color 0.15s; box-shadow: var(--shadow);
+  }
+  .search-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+  .search-input::placeholder { color: var(--text3); }
+  .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fbtn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: var(--bg2);
+    color: var(--text2); font-family: var(--font); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    box-shadow: var(--shadow);
+  }
+  .fbtn .fdot { width: 7px; height: 7px; border-radius: 50%; }
+  .fbtn.on  { color: var(--text); border-color: var(--border2); background: var(--bg2); }
+  .fbtn.off { opacity: 0.45; background: var(--bg3); }
+  .fbtn:hover { border-color: var(--green); }
+  .fbtn .cnt { font-size: 10px; font-family: var(--mono); padding: 1px 5px; border-radius: 8px; background: var(--bg3); color: var(--text2); }
+  .dv { width: 1px; height: 28px; background: var(--border2); }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    padding: 10px 14px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: var(--r);
+    margin-bottom: 14px; box-shadow: var(--shadow);
+  }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); font-weight: 500; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── TRADE LIST ── */
+  .trade-list { display: flex; flex-direction: column; gap: 8px; }
+  .trade-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+    transition: all 0.15s; cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  .trade-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--border2); }
+  .trade-card.expanded { border-color: var(--green); box-shadow: 0 0 0 2px var(--green-dim), var(--shadow-md); transform: none; }
+  .trade-card.not-started { opacity: 0.55; }
+
+  .trade-top { padding: 14px 16px; }
+  .trade-header { display: grid; grid-template-columns: 210px 1fr auto; gap: 16px; align-items: center; }
+  .trade-id { font-size: 13px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+  .trade-meta { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.5; }
+  .trade-badge-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .badge i { font-size: 11px; }
+  .badge-green  { background: var(--green-dim);   color: var(--green-mid); }
+  .badge-orange { background: var(--orange-dim);  color: #B56A00; }
+  .badge-red    { background: var(--danger-dim);  color: var(--danger);   }
+  .badge-blue   { background: var(--blue-dim);    color: var(--blue);     }
+  .badge-purple { background: var(--purple-dim);  color: var(--purple);   }
+  .badge-gray   { background: var(--bg3);         color: var(--text3);    border: 1px solid var(--border); }
+
+  /* ── LANES ── */
+  .lanes { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .lane-row { display: grid; grid-template-columns: 82px 1fr 40px; align-items: center; gap: 10px; }
+  .lane-label { font-size: 11px; font-weight: 600; color: var(--text2); display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .lane-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .lane-pct { font-size: 11px; font-family: var(--mono); color: var(--text3); text-align: right; font-weight: 500; }
+
+  .progress-track { position: relative; height: 26px; background: var(--bg3); border-radius: 20px; border: 1px solid var(--border); }
+  .progress-fill  { position: absolute; top: 0; left: 0; height: 100%; border-radius: 20px; transition: width 0.5s ease; }
+  .fill-goods { background: linear-gradient(90deg, rgba(47,79,204,0.25), rgba(47,79,204,0.15)); }
+  .fill-docs  { background: linear-gradient(90deg, rgba(42,173,94,0.25), rgba(42,173,94,0.15)); }
+  .fill-funds { background: linear-gradient(90deg, rgba(245,147,30,0.25), rgba(245,147,30,0.15)); }
+  .fill-stripe {
+    background: repeating-linear-gradient(90deg,
+      rgba(123,94,255,0.12) 0px, rgba(123,94,255,0.12) 8px,
+      rgba(123,94,255,0.04) 8px, rgba(123,94,255,0.04) 16px);
+  }
+
+  .ms { position: absolute; top: 50%; transform: translate(-50%,-50%); z-index: 2; }
+  .ms-dot {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid var(--bg2);
+    display: flex; align-items: center; justify-content: center; font-size: 7px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .ms-done    { background: var(--green);   color: #fff; }
+  .ms-active  { background: var(--blue);    color: #fff; }
+  .ms-warn    { background: var(--orange);  color: #fff; }
+  .ms-block   { background: var(--danger);  color: #fff; }
+  .ms-pending { background: var(--bg4);     color: var(--text3); border-color: var(--border); }
+  .ms-unknown { background: var(--purple);  color: #fff; }
+  .ms-tip {
+    position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+    background: var(--text); border-radius: 6px; padding: 5px 9px;
+    font-size: 10px; white-space: nowrap; color: #fff; pointer-events: none;
+    opacity: 0; transition: opacity 0.15s; z-index: 20; font-family: var(--mono);
+  }
+  .ms:hover .ms-tip { opacity: 1; }
+
+  /* ── ALERT STRIP ── */
+  .alert-strip { display: flex; align-items: flex-start; gap: 8px; padding: 9px 16px; font-size: 12px; line-height: 1.5; border-top: 1px solid; font-weight: 500; }
+  .alert-strip i { flex-shrink: 0; margin-top: 1px; font-size: 14px; }
+  .as-red    { background: var(--danger-dim);  border-color: rgba(224,62,62,0.2);    color: var(--danger);  }
+  .as-orange { background: var(--orange-dim);  border-color: rgba(245,147,30,0.2);   color: #8C4D00;        }
+  .as-purple { background: var(--purple-dim);  border-color: rgba(123,94,255,0.2);   color: var(--purple);  }
+
+  /* ── DETAIL PANEL ── */
+  .detail-panel { display: none; padding: 16px; border-top: 1px solid var(--border); background: var(--bg3); }
+  .detail-panel.open { display: block; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+  .detail-section-title {
+    font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase;
+    letter-spacing: 0.07em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  }
+  .detail-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .ds-icon { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-top: 1px; }
+  .ds-done    { background: var(--green-dim);   color: var(--green);   }
+  .ds-active  { background: var(--blue-dim);    color: var(--blue);    }
+  .ds-warn    { background: var(--orange-dim);  color: var(--orange);  }
+  .ds-block   { background: var(--danger-dim);  color: var(--danger);  }
+  .ds-pending { background: var(--bg4);         color: var(--text3);   border: 1px solid var(--border); }
+  .ds-unknown { background: var(--purple-dim);  color: var(--purple);  }
+  .ds-label { font-size: 12px; color: var(--text); font-weight: 500; }
+  .ds-time  { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+  .ds-time.late    { color: var(--danger); }
+  .ds-time.unknown { color: var(--purple); }
+
+  .raw-section { border-top: 1px solid var(--border); padding-top: 12px; display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
+  .raw-item label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .raw-item p { font-size: 12px; font-family: var(--mono); color: var(--text2); font-weight: 500; }
+  .raw-item p.hl     { color: var(--text); }
+  .raw-item p.c-red  { color: var(--danger); }
+  .raw-item p.c-ora  { color: #8C4D00; }
+  .raw-item p.c-grn  { color: var(--green-mid); }
+
+  /* ── STATE SCREENS ── */
+  .state-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 12px; color: var(--text3); }
+  .state-screen i { font-size: 36px; }
+  .state-screen p { font-size: 13px; font-weight: 500; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; z-index: 999;
+    background: var(--text); border-radius: var(--r-sm); padding: 10px 16px;
+    font-size: 12px; color: #fff; font-weight: 500;
+    transform: translateY(60px); opacity: 0; transition: all 0.25s;
+    display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-md);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg3); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-brand">
+    <span class="auth-brand-logo"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="100%" viewBox="0 0 272 270" enable-background="new 0 0 272 270" xml:space="preserve">
+<path fill="#2A3F97" opacity="1.000000" stroke="none" 
+	d="
+M54.001213,64.165833 
+	C52.003696,67.266830 50.142380,70.466179 47.985825,73.452324 
+	C36.783413,88.964127 30.004440,106.024620 27.857086,125.197197 
+	C25.419331,146.962616 29.632988,167.302551 40.280300,186.009583 
+	C45.507282,195.193253 53.213959,202.965591 59.900261,212.089096 
+	C60.085522,216.647064 61.149281,220.803955 60.047390,224.272980 
+	C57.784042,231.398605 51.612839,233.380890 42.005272,231.176453 
+	C27.715454,217.723953 16.775314,201.926132 10.138335,183.472519 
+	C6.988264,174.713974 5.280761,165.437683 2.874115,156.408096 
+	C2.724094,155.845230 2.175171,155.388702 1.405919,154.941345 
+	C1.000000,142.645767 1.000000,130.291550 0.999998,117.468658 
+	C1.655978,116.309937 2.782710,115.691177 2.899603,114.919456 
+	C6.515197,91.049675 16.066477,69.920135 31.850967,51.626076 
+	C33.353016,49.885212 34.785351,48.084202 36.571701,46.568718 
+	C34.993893,52.381725 35.282642,57.802063 39.755337,61.840252 
+	C43.748215,65.445236 48.632504,67.222832 54.001213,64.165833 
+z"/>
+<path fill="#32B34B" opacity="1.000000" stroke="none" 
+	d="
+M221.832993,40.003273 
+	C242.218124,57.425327 254.252899,80.026436 260.549988,105.534821 
+	C266.266083,128.689774 266.395264,152.000443 254.947998,173.877335 
+	C245.052444,192.788757 230.903107,207.355515 209.612228,213.053543 
+	C188.886307,218.600357 169.959183,214.994827 152.750351,201.463257 
+	C139.867004,191.332901 133.010178,177.044098 124.471939,163.872055 
+	C117.816803,153.605133 111.513542,143.110107 104.303589,131.509171 
+	C104.161652,134.533752 104.012482,136.248611 104.011139,137.963593 
+	C103.994789,158.952896 104.027016,179.942261 103.985489,200.931503 
+	C103.970604,208.458633 100.241096,213.315079 93.068596,215.458450 
+	C86.339439,217.469345 78.039131,211.589996 78.029327,204.565765 
+	C77.972633,163.919876 78.021942,123.273834 77.975288,82.627907 
+	C77.969513,77.594887 80.843933,74.641495 84.876488,72.676720 
+	C89.942451,70.208427 95.958763,70.876060 99.265335,74.969925 
+	C103.577911,80.309319 107.308830,86.154190 110.950005,91.993576 
+	C122.493370,110.505791 133.874863,129.118896 145.327301,147.687851 
+	C148.859390,153.414780 152.367752,159.157272 155.975906,164.836136 
+	C162.350983,174.869827 169.709564,183.967712 181.577911,187.726532 
+	C194.319977,191.762054 205.769730,188.434570 216.027115,180.439331 
+	C228.555695,170.673752 235.643143,157.562332 237.753555,142.044937 
+	C239.211014,131.328522 237.256516,120.663445 234.605484,110.209541 
+	C229.490448,90.039368 218.867813,73.111259 204.028046,57.896473 
+	C201.823776,51.644371 203.332336,47.105694 207.364655,42.914352 
+	C211.630173,38.480587 216.921524,40.480644 221.832993,40.003273 
+z"/>
+<path fill="#F89B25" opacity="1.000000" stroke="none" 
+	d="
+M221.809387,39.663818 
+	C216.921524,40.480644 211.630173,38.480587 207.364655,42.914352 
+	C203.332336,47.105694 201.823776,51.644371 203.870560,57.593880 
+	C199.064835,54.623463 194.301926,51.238487 189.525589,47.872551 
+	C176.909454,38.981846 162.832184,34.078709 147.594742,31.936474 
+	C125.527817,28.834084 104.345398,31.710627 84.779747,42.261848 
+	C75.543411,47.242748 67.485123,54.410236 58.904205,60.602409 
+	C57.452423,61.650051 56.057209,62.776085 54.318535,64.015862 
+	C48.632504,67.222832 43.748215,65.445236 39.755337,61.840252 
+	C35.282642,57.802063 34.993893,52.381725 36.862774,46.414490 
+	C55.140293,26.409458 77.297501,13.811350 103.543121,7.816248 
+	C117.618210,4.601175 131.787308,4.124451 145.825806,5.252382 
+	C168.165848,7.047305 188.848694,14.621702 207.211243,27.785391 
+	C212.241592,31.391531 216.936783,35.465229 221.809387,39.663818 
+z"/>
+<path fill="#E60B7F" opacity="1.000000" stroke="none" 
+	d="
+M42.145256,231.475906 
+	C51.612839,233.380890 57.784042,231.398605 60.047390,224.272980 
+	C61.149281,220.803955 60.085522,216.647064 60.065132,212.383179 
+	C71.398216,223.030960 84.548286,231.133957 99.545845,235.944870 
+	C127.345474,244.862411 154.474609,242.801987 180.588730,229.707947 
+	C188.233994,225.874496 192.023499,226.365143 197.165573,230.793686 
+	C204.257629,236.901550 202.771103,247.584061 194.492584,252.106705 
+	C183.116669,258.321533 171.066299,263.154144 158.266571,264.780334 
+	C145.529984,266.398529 132.538269,267.278625 119.733078,266.732300 
+	C106.735779,266.177765 94.042503,262.618774 81.958809,257.468719 
+	C67.253075,251.201111 54.010818,242.654343 42.145256,231.475906 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M175.166565,126.996094 
+	C175.113785,120.410957 174.963409,113.824066 175.082001,107.242020 
+	C175.109070,105.739716 176.064819,104.254135 176.966736,102.107925 
+	C177.715866,98.901581 178.283936,96.358994 178.428162,93.792587 
+	C178.762115,87.849770 178.890991,81.895424 179.102997,75.945755 
+	C180.805389,78.874741 182.507767,81.803734 184.209045,85.367760 
+	C184.866928,87.343620 185.525925,88.684433 186.184937,90.025253 
+	C189.678970,97.312172 190.435120,105.065300 189.951355,112.990242 
+	C189.856537,114.543526 189.183151,116.061485 188.121872,117.930145 
+	C183.366943,121.175072 179.266754,124.085579 175.166565,126.996094 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M160.164856,121.002594 
+	C157.778717,112.760292 159.548187,104.666740 161.078384,96.573334 
+	C161.256317,95.632294 161.755630,94.752014 162.530426,93.833908 
+	C166.008804,96.564240 169.062698,99.304230 172.116608,102.044220 
+	C172.740051,103.687386 173.852142,105.316055 173.901352,106.976242 
+	C174.101669,113.733658 174.013870,120.501228 173.923798,127.263611 
+	C173.912430,128.117844 173.258774,128.963501 172.185944,129.803497 
+	C167.701080,126.863441 163.932968,123.933014 160.164856,121.002594 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M175.120178,127.334427 
+	C179.266754,124.085579 183.366943,121.175072 187.793823,118.151001 
+	C188.421356,120.386292 189.310699,122.837822 188.921906,125.066360 
+	C187.176086,135.073257 182.848938,143.930450 176.536926,151.774200 
+	C176.065277,151.712662 175.593628,151.651123 175.121979,151.589584 
+	C175.121979,145.435043 175.125549,139.280502 175.119766,133.125961 
+	C175.118057,131.308212 175.089874,129.490494 175.120178,127.334427 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M172.508423,101.929489 
+	C169.062698,99.304230 166.008804,96.564240 162.735291,93.491959 
+	C164.033051,85.114761 168.012039,78.337044 172.907501,72.031105 
+	C173.422653,72.107552 173.937805,72.183998 174.452957,72.260445 
+	C173.935394,82.111885 173.417816,91.963326 172.508423,101.929489 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M160.114426,121.408821 
+	C163.932968,123.933014 167.701080,126.863441 171.794220,129.918060 
+	C173.013840,136.888947 173.908432,143.735626 174.803024,150.582306 
+	C174.109787,150.744385 173.416550,150.906479 172.723312,151.068558 
+	C165.430115,142.742706 161.867767,132.686646 160.114426,121.408821 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M179.039734,75.617554 
+	C178.890991,81.895424 178.762115,87.849770 178.428162,93.792587 
+	C178.283936,96.358994 177.715866,98.901581 177.119858,101.757103 
+	C176.296005,101.409134 175.175217,100.765411 175.167130,100.108002 
+	C175.052658,90.804832 175.089218,81.499802 176.205795,71.755661 
+	C177.129364,72.933556 178.052917,74.111458 179.039734,75.617554 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M186.116394,89.668434 
+	C185.525925,88.684433 184.866928,87.343620 184.340485,85.685829 
+	C184.997971,86.683113 185.522903,87.997368 186.116394,89.668434 
+z"/>
+</svg></span>
+    <div class="auth-brand-name">Ninja<span>Global</span></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-title">Trade Flow Dashboard</div>
+    <div class="auth-sub">Sign in with your Ninjacart account to track goods, documents, and funds across borders.</div>
+    <button class="google-btn" onclick="signIn()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.31z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-note">Restricted to @ninjacart.com accounts</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <span class="header-logo"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="100%" viewBox="0 0 272 270" enable-background="new 0 0 272 270" xml:space="preserve">
+<path fill="#2A3F97" opacity="1.000000" stroke="none" 
+	d="
+M54.001213,64.165833 
+	C52.003696,67.266830 50.142380,70.466179 47.985825,73.452324 
+	C36.783413,88.964127 30.004440,106.024620 27.857086,125.197197 
+	C25.419331,146.962616 29.632988,167.302551 40.280300,186.009583 
+	C45.507282,195.193253 53.213959,202.965591 59.900261,212.089096 
+	C60.085522,216.647064 61.149281,220.803955 60.047390,224.272980 
+	C57.784042,231.398605 51.612839,233.380890 42.005272,231.176453 
+	C27.715454,217.723953 16.775314,201.926132 10.138335,183.472519 
+	C6.988264,174.713974 5.280761,165.437683 2.874115,156.408096 
+	C2.724094,155.845230 2.175171,155.388702 1.405919,154.941345 
+	C1.000000,142.645767 1.000000,130.291550 0.999998,117.468658 
+	C1.655978,116.309937 2.782710,115.691177 2.899603,114.919456 
+	C6.515197,91.049675 16.066477,69.920135 31.850967,51.626076 
+	C33.353016,49.885212 34.785351,48.084202 36.571701,46.568718 
+	C34.993893,52.381725 35.282642,57.802063 39.755337,61.840252 
+	C43.748215,65.445236 48.632504,67.222832 54.001213,64.165833 
+z"/>
+<path fill="#32B34B" opacity="1.000000" stroke="none" 
+	d="
+M221.832993,40.003273 
+	C242.218124,57.425327 254.252899,80.026436 260.549988,105.534821 
+	C266.266083,128.689774 266.395264,152.000443 254.947998,173.877335 
+	C245.052444,192.788757 230.903107,207.355515 209.612228,213.053543 
+	C188.886307,218.600357 169.959183,214.994827 152.750351,201.463257 
+	C139.867004,191.332901 133.010178,177.044098 124.471939,163.872055 
+	C117.816803,153.605133 111.513542,143.110107 104.303589,131.509171 
+	C104.161652,134.533752 104.012482,136.248611 104.011139,137.963593 
+	C103.994789,158.952896 104.027016,179.942261 103.985489,200.931503 
+	C103.970604,208.458633 100.241096,213.315079 93.068596,215.458450 
+	C86.339439,217.469345 78.039131,211.589996 78.029327,204.565765 
+	C77.972633,163.919876 78.021942,123.273834 77.975288,82.627907 
+	C77.969513,77.594887 80.843933,74.641495 84.876488,72.676720 
+	C89.942451,70.208427 95.958763,70.876060 99.265335,74.969925 
+	C103.577911,80.309319 107.308830,86.154190 110.950005,91.993576 
+	C122.493370,110.505791 133.874863,129.118896 145.327301,147.687851 
+	C148.859390,153.414780 152.367752,159.157272 155.975906,164.836136 
+	C162.350983,174.869827 169.709564,183.967712 181.577911,187.726532 
+	C194.319977,191.762054 205.769730,188.434570 216.027115,180.439331 
+	C228.555695,170.673752 235.643143,157.562332 237.753555,142.044937 
+	C239.211014,131.328522 237.256516,120.663445 234.605484,110.209541 
+	C229.490448,90.039368 218.867813,73.111259 204.028046,57.896473 
+	C201.823776,51.644371 203.332336,47.105694 207.364655,42.914352 
+	C211.630173,38.480587 216.921524,40.480644 221.832993,40.003273 
+z"/>
+<path fill="#F89B25" opacity="1.000000" stroke="none" 
+	d="
+M221.809387,39.663818 
+	C216.921524,40.480644 211.630173,38.480587 207.364655,42.914352 
+	C203.332336,47.105694 201.823776,51.644371 203.870560,57.593880 
+	C199.064835,54.623463 194.301926,51.238487 189.525589,47.872551 
+	C176.909454,38.981846 162.832184,34.078709 147.594742,31.936474 
+	C125.527817,28.834084 104.345398,31.710627 84.779747,42.261848 
+	C75.543411,47.242748 67.485123,54.410236 58.904205,60.602409 
+	C57.452423,61.650051 56.057209,62.776085 54.318535,64.015862 
+	C48.632504,67.222832 43.748215,65.445236 39.755337,61.840252 
+	C35.282642,57.802063 34.993893,52.381725 36.862774,46.414490 
+	C55.140293,26.409458 77.297501,13.811350 103.543121,7.816248 
+	C117.618210,4.601175 131.787308,4.124451 145.825806,5.252382 
+	C168.165848,7.047305 188.848694,14.621702 207.211243,27.785391 
+	C212.241592,31.391531 216.936783,35.465229 221.809387,39.663818 
+z"/>
+<path fill="#E60B7F" opacity="1.000000" stroke="none" 
+	d="
+M42.145256,231.475906 
+	C51.612839,233.380890 57.784042,231.398605 60.047390,224.272980 
+	C61.149281,220.803955 60.085522,216.647064 60.065132,212.383179 
+	C71.398216,223.030960 84.548286,231.133957 99.545845,235.944870 
+	C127.345474,244.862411 154.474609,242.801987 180.588730,229.707947 
+	C188.233994,225.874496 192.023499,226.365143 197.165573,230.793686 
+	C204.257629,236.901550 202.771103,247.584061 194.492584,252.106705 
+	C183.116669,258.321533 171.066299,263.154144 158.266571,264.780334 
+	C145.529984,266.398529 132.538269,267.278625 119.733078,266.732300 
+	C106.735779,266.177765 94.042503,262.618774 81.958809,257.468719 
+	C67.253075,251.201111 54.010818,242.654343 42.145256,231.475906 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M175.166565,126.996094 
+	C175.113785,120.410957 174.963409,113.824066 175.082001,107.242020 
+	C175.109070,105.739716 176.064819,104.254135 176.966736,102.107925 
+	C177.715866,98.901581 178.283936,96.358994 178.428162,93.792587 
+	C178.762115,87.849770 178.890991,81.895424 179.102997,75.945755 
+	C180.805389,78.874741 182.507767,81.803734 184.209045,85.367760 
+	C184.866928,87.343620 185.525925,88.684433 186.184937,90.025253 
+	C189.678970,97.312172 190.435120,105.065300 189.951355,112.990242 
+	C189.856537,114.543526 189.183151,116.061485 188.121872,117.930145 
+	C183.366943,121.175072 179.266754,124.085579 175.166565,126.996094 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M160.164856,121.002594 
+	C157.778717,112.760292 159.548187,104.666740 161.078384,96.573334 
+	C161.256317,95.632294 161.755630,94.752014 162.530426,93.833908 
+	C166.008804,96.564240 169.062698,99.304230 172.116608,102.044220 
+	C172.740051,103.687386 173.852142,105.316055 173.901352,106.976242 
+	C174.101669,113.733658 174.013870,120.501228 173.923798,127.263611 
+	C173.912430,128.117844 173.258774,128.963501 172.185944,129.803497 
+	C167.701080,126.863441 163.932968,123.933014 160.164856,121.002594 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M175.120178,127.334427 
+	C179.266754,124.085579 183.366943,121.175072 187.793823,118.151001 
+	C188.421356,120.386292 189.310699,122.837822 188.921906,125.066360 
+	C187.176086,135.073257 182.848938,143.930450 176.536926,151.774200 
+	C176.065277,151.712662 175.593628,151.651123 175.121979,151.589584 
+	C175.121979,145.435043 175.125549,139.280502 175.119766,133.125961 
+	C175.118057,131.308212 175.089874,129.490494 175.120178,127.334427 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M172.508423,101.929489 
+	C169.062698,99.304230 166.008804,96.564240 162.735291,93.491959 
+	C164.033051,85.114761 168.012039,78.337044 172.907501,72.031105 
+	C173.422653,72.107552 173.937805,72.183998 174.452957,72.260445 
+	C173.935394,82.111885 173.417816,91.963326 172.508423,101.929489 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M160.114426,121.408821 
+	C163.932968,123.933014 167.701080,126.863441 171.794220,129.918060 
+	C173.013840,136.888947 173.908432,143.735626 174.803024,150.582306 
+	C174.109787,150.744385 173.416550,150.906479 172.723312,151.068558 
+	C165.430115,142.742706 161.867767,132.686646 160.114426,121.408821 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M179.039734,75.617554 
+	C178.890991,81.895424 178.762115,87.849770 178.428162,93.792587 
+	C178.283936,96.358994 177.715866,98.901581 177.119858,101.757103 
+	C176.296005,101.409134 175.175217,100.765411 175.167130,100.108002 
+	C175.052658,90.804832 175.089218,81.499802 176.205795,71.755661 
+	C177.129364,72.933556 178.052917,74.111458 179.039734,75.617554 
+z"/>
+<path fill="#0D7C3F" opacity="1.000000" stroke="none" 
+	d="
+M186.116394,89.668434 
+	C185.525925,88.684433 184.866928,87.343620 184.340485,85.685829 
+	C184.997971,86.683113 185.522903,87.997368 186.116394,89.668434 
+z"/>
+</svg></span>
+      <div class="header-divider"></div>
+      <div class="header-title">NinjaGlobal <span>/ Trade Flow</span></div>
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="last-updated"></span>
+      <button class="refresh-btn" id="refresh-btn" onclick="loadData()"><i class="ti ti-refresh"></i>Refresh</button>
+      <div class="user-pill">
+        <div class="user-avatar" id="user-avatar">P</div>
+        <span id="user-name">Dev User</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="summary-strip">
+      <div class="summary-card sc-blue">  <div class="sc-label">Total trades</div><div class="sc-value blue"   id="s-total">—</div><div class="sc-sub">All records loaded</div></div>
+      <div class="summary-card sc-green"> <div class="sc-label">Active</div>       <div class="sc-value green"  id="s-active">—</div><div class="sc-sub">In progress</div></div>
+      <div class="summary-card sc-purple"><div class="sc-label">Data gaps</div>    <div class="sc-value purple" id="s-gaps">—</div><div class="sc-sub">Ground team input needed</div></div>
+      <div class="summary-card sc-orange"><div class="sc-label">Due soon</div>     <div class="sc-value orange" id="s-due">—</div><div class="sc-sub">Payment within 7 days</div></div>
+      <div class="summary-card sc-red">   <div class="sc-label">Overdue</div>      <div class="sc-value red"    id="s-overdue">—</div><div class="sc-sub">Past due date</div></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Done</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--blue)"></div>Active / current</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--orange)"></div>Delayed</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--danger)"></div>Blocked</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--bg4);border:1px solid var(--border2)"></div>Not yet reached</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>Not logged — ground team needed</div>
+    </div>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input class="search-input" id="search" placeholder="Search invoice, buyer, SKU..." oninput="applyFilters()">
+      </div>
+      <div class="dv"></div>
+      <div class="filter-group">
+        <button class="fbtn on" data-filter="active"     onclick="toggleFilter(this)"><div class="fdot" style="background:var(--green)"></div>Active <span class="cnt" id="fc-active">0</span></button>
+        <button class="fbtn on" data-filter="gap"        onclick="toggleFilter(this)"><div class="fdot" style="background:var(--purple)"></div>Data gaps <span class="cnt" id="fc-gap">0</span></button>
+        <button class="fbtn on" data-filter="due"        onclick="toggleFilter(this)"><div class="fdot" style="background:var(--orange)"></div>Due soon <span class="cnt" id="fc-due">0</span></button>
+        <button class="fbtn on" data-filter="overdue"    onclick="toggleFilter(this)"><div class="fdot" style="background:var(--danger)"></div>Overdue <span class="cnt" id="fc-overdue">0</span></button>
+        <button class="fbtn on" data-filter="notstarted" onclick="toggleFilter(this)"><div class="fdot" style="background:var(--text3)"></div>Not started <span class="cnt" id="fc-notstarted">0</span></button>
+      </div>
+    </div>
+
+    <div class="trade-list" id="trade-list">
+      <div class="state-screen"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;color:var(--green)"></i><p>Loading trade data...</p></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+const WORKER_URL   = 'https://ninjacart-trade-proxy.prashanthburgula.workers.dev/';
+const ALLOWED_DOMAIN = 'ninjacart.com';
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+
+let allTrades = [];
+let activeFilters = new Set(['active','gap','due','overdue','notstarted']);
+let currentUser = null;
+
+// ── DEV DATA ──────────────────────────────────────────────────────────────────
+const DEV_ROWS = [
+  { Supplier:'Agro Spices Ltd', End_Buyer:'MegaMart MY SDN BHD', SKU:'Black Pepper', SKU_Item:'Black Pepper Grade A 50kg', QTY:12.5, PO_ID:'PO-28841', SO_Number:'GCKA26SO-0041', Invoice_Num:'GC26INV-0301', Invoice_Value:94500, Invoice_Currency:'MYR', Purchase:'2026-04-10T08:00:00', Demand_Generation:'12d 4h 20m', Supplier_Mapping:'11d 18h 5m', Processing_Packing_in_progress:'5d 2h 10m', Cargo_Reached_ICD_CFS:'0d 0h 22m', Vessel_departed:'2026-05-08T14:00:00', Vessel_Arrival:'2026-05-18T09:00:00', Vessel_Clearance:'2026-05-20T11:00:00', Payment_due:94500, Due_Date:'2026-06-19', Due_Status:'24 Days Left' },
+  { Supplier:'63IDEAS INFOLABS PVT LTD', End_Buyer:'FreshLink SDN BHD', SKU:'Turmeric', SKU_Item:'Turmeric Medium 25kg', QTY:1, PO_ID:'PO-25449', SO_Number:'GCKA26SO-0009', Invoice_Num:'GC26INV-0235', Invoice_Value:7300, Invoice_Currency:'MYR', Purchase:'2026-04-25T09:12:43', Demand_Generation:'13d 11h 41m', Supplier_Mapping:'13d 7h 15m', Processing_Packing_in_progress:'4d 2h 6m', Cargo_Reached_ICD_CFS:'0d 0h 4m', Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:7300, Due_Date:'2026-06-14', Due_Status:'19 Days Left' },
+  { Supplier:'63IDEAS INFOLABS PVT LTD', End_Buyer:'SpiceWorld Trading', SKU:'Turmeric', SKU_Item:'Turmeric Medium 25kg', QTY:0.05, PO_ID:'PO-25449', SO_Number:'GCKA26SO-0010', Invoice_Num:'GC26INV-0232', Invoice_Value:360, Invoice_Currency:'MYR', Purchase:'2026-04-25T09:12:43', Demand_Generation:'17d 2h 33m', Supplier_Mapping:'16d 21h 12m', Processing_Packing_in_progress:'0d 11h 41m', Cargo_Reached_ICD_CFS:'0d 0h 3m', Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:360, Due_Date:'2026-05-27', Due_Status:'1 Days Left' },
+  { Supplier:'63IDEAS INFOLABS PVT LTD', End_Buyer:'KL Grocers Sdn Bhd', SKU:'Raisin', SKU_Item:'Sangli Golden AA 10kg', QTY:100, PO_ID:'PO-25097', SO_Number:'GCKA26SO-0008', Invoice_Num:'GC26INV-0202', Invoice_Value:1780, Invoice_Currency:'MYR', Purchase:'2026-04-09T05:30:00', Demand_Generation:'21d 12h 41m', Supplier_Mapping:'21d 7h 37m', Processing_Packing_in_progress:'7d 4h 32m', Cargo_Reached_ICD_CFS:'0d 0h 5m', Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:1780, Due_Date:'2026-06-07', Due_Status:'12 Days Left' },
+  { Supplier:'Himalayan Herbs Co', End_Buyer:'NaturalPharma MY', SKU:'Cardamom', SKU_Item:'Green Cardamom 8mm Bold', QTY:3.2, PO_ID:'PO-27103', SO_Number:'GCKA26SO-0031', Invoice_Num:'GC26INV-0188', Invoice_Value:52800, Invoice_Currency:'MYR', Purchase:'2026-03-28T10:00:00', Demand_Generation:'10d 6h 0m', Supplier_Mapping:'9d 22h 15m', Processing_Packing_in_progress:'6d 3h 40m', Cargo_Reached_ICD_CFS:'0d 0h 8m', Vessel_departed:'2026-04-18T07:00:00', Vessel_Arrival:'2026-04-28T16:00:00', Vessel_Clearance:'2026-04-30T09:00:00', Payment_due:52800, Due_Date:'2026-05-30', Due_Status:'4 Days Left' },
+  { Supplier:'Rajasthan Cumin House', End_Buyer:'AsiaSpice Distributors', SKU:'Cumin', SKU_Item:'Cumin Seeds Premium 50kg', QTY:8, PO_ID:'PO-26890', SO_Number:'GCKA26SO-0029', Invoice_Num:'GC26INV-0175', Invoice_Value:28400, Invoice_Currency:'USD', Purchase:'2026-03-15T08:30:00', Demand_Generation:'14d 0h 0m', Supplier_Mapping:'13d 12h 0m', Processing_Packing_in_progress:'4d 8h 0m', Cargo_Reached_ICD_CFS:'0d 1h 12m', Vessel_departed:'2026-04-06T12:00:00', Vessel_Arrival:'2026-04-18T08:00:00', Vessel_Clearance:null, Payment_due:null, Due_Date:null, Due_Status:null },
+  { Supplier:null, End_Buyer:'XYZ (M) SDN. BHD.', SKU:'Red-Chilli', SKU_Item:'5531 BYD SL ( 668 )', QTY:6.08, PO_ID:null, SO_Number:'GCKA26SO-0009', Invoice_Num:null, Invoice_Value:39376.075, Invoice_Currency:'USD', Purchase:null, Demand_Generation:null, Supplier_Mapping:null, Processing_Packing_in_progress:null, Cargo_Reached_ICD_CFS:null, Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:null, Due_Date:null, Due_Status:null },
+  { Supplier:'Kerala Pepper Estates', End_Buyer:'Penang Food Hub', SKU:'White Pepper', SKU_Item:'White Pepper Ground 500g', QTY:5.5, PO_ID:'PO-29002', SO_Number:'GCKA26SO-0048', Invoice_Num:'GC26INV-0312', Invoice_Value:41250, Invoice_Currency:'MYR', Purchase:'2026-05-01T07:00:00', Demand_Generation:'8d 3h 0m', Supplier_Mapping:null, Processing_Packing_in_progress:null, Cargo_Reached_ICD_CFS:null, Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:null, Due_Date:null, Due_Status:null },
+  { Supplier:'Guntur Chilli Farms', End_Buyer:'MegaMart MY SDN BHD', SKU:'Red Chilli', SKU_Item:'Teja Chilli Dried 25kg', QTY:20, PO_ID:'PO-24810', SO_Number:'GCKA26SO-0003', Invoice_Num:'GC26INV-0140', Invoice_Value:118000, Invoice_Currency:'MYR', Purchase:'2026-02-20T06:00:00', Demand_Generation:'9d 14h 0m', Supplier_Mapping:'9d 8h 0m', Processing_Packing_in_progress:'7d 0h 0m', Cargo_Reached_ICD_CFS:'0d 0h 30m', Vessel_departed:'2026-03-18T10:00:00', Vessel_Arrival:'2026-03-28T14:00:00', Vessel_Clearance:'2026-03-30T11:00:00', Payment_due:118000, Due_Date:'2026-04-29', Due_Status:'Overdue' },
+  { Supplier:'Coorg Coffee & Spice', End_Buyer:'JB Trading SDN BHD', SKU:'Coriander', SKU_Item:'Coriander Seeds Whole 25kg', QTY:6, PO_ID:'PO-28100', SO_Number:'GCKA26SO-0038', Invoice_Num:'GC26INV-0290', Invoice_Value:9600, Invoice_Currency:'MYR', Purchase:'2026-04-18T09:00:00', Demand_Generation:'11d 5h 0m', Supplier_Mapping:'10d 22h 0m', Processing_Packing_in_progress:'3d 6h 0m', Cargo_Reached_ICD_CFS:'0d 0h 10m', Vessel_departed:null, Vessel_Arrival:null, Vessel_Clearance:null, Payment_due:null, Due_Date:null, Due_Status:null },
+];
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function signIn() {
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential });
+  google.accounts.id.prompt();
+}
+function handleCredential(response) {
+  const payload = parseJwt(response.credential);
+  if (!payload.email.endsWith('@' + ALLOWED_DOMAIN)) { alert('Access restricted to @' + ALLOWED_DOMAIN); return; }
+  currentUser = payload; showApp();
+}
+function parseJwt(token) {
+  return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+}
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const name = currentUser.name || currentUser.email.split('@')[0];
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-avatar').textContent = name[0].toUpperCase();
+  loadData();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+    currentUser = { name: 'Prashanth B', email: 'prashanth@ninjacart.com' };
+    showApp();
+  }
+});
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    let rows;
+    if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+      await new Promise(r => setTimeout(r, 600)); // simulate latency
+      rows = DEV_ROWS;
+      showToast('Dev mode — ' + rows.length + ' sample trades loaded');
+    } else {
+      const res = await fetch(WORKER_URL);
+      if (!res.ok) throw new Error('Worker error ' + res.status);
+      const json = await res.json();
+      rows = json.rows || [];
+      showToast('Refreshed — ' + rows.length + ' trades loaded');
+    }
+    allTrades = rows.map(mapRow);
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    updateSummary(); updateFilterCounts(); applyFilters();
+  } catch(err) {
+    showToast('Error: ' + err.message);
+    document.getElementById('trade-list').innerHTML = `<div class="state-screen"><i class="ti ti-alert-triangle" style="color:var(--danger)"></i><p>Failed to load. Check connection and retry.</p></div>`;
+  } finally { btn.classList.remove('spinning'); }
+}
+
+// ── MAP ROW ───────────────────────────────────────────────────────────────────
+function mapRow(r) {
+  const hasPD = !!r.Payment_due;
+  const vesselBlank = !r.Vessel_departed && !r.Vessel_Arrival && !r.Vessel_Clearance;
+  const allNull = !r.Purchase && !r.Demand_Generation && !r.Supplier_Mapping && !r.Processing_Packing_in_progress && !r.Cargo_Reached_ICD_CFS;
+
+  let scenario = 'active';
+  if (allNull && !hasPD) scenario = 'notstarted';
+  else if (hasPD && vesselBlank) scenario = 'gap';
+  else if (hasPD && !vesselBlank) scenario = 'completed';
+
+  let dueScenario = null;
+  if (r.Due_Date) {
+    const days = Math.ceil((new Date(r.Due_Date) - new Date()) / 86400000);
+    if (days < 0 || (r.Due_Status||'').toLowerCase().includes('overdue')) dueScenario = 'overdue';
+    else if (days <= 7) dueScenario = 'due';
+  }
+  if (dueScenario) scenario = dueScenario === 'overdue' ? 'overdue' : scenario;
+
+  const g = [
+    { l:'Purchase',    s: r.Purchase ? 'done' : 'pending',                                                           t: r.Purchase ? fmtDate(r.Purchase) : '—' },
+    { l:'Demand gen',  s: r.Demand_Generation ? 'done' : r.Purchase ? 'active' : 'pending',                          t: r.Demand_Generation || '—' },
+    { l:'Supplier map',s: r.Supplier_Mapping ? 'done' : r.Demand_Generation ? 'active' : 'pending',                  t: r.Supplier_Mapping || '—' },
+    { l:'Processing',  s: r.Processing_Packing_in_progress ? 'done' : r.Supplier_Mapping ? 'active' : 'pending',     t: r.Processing_Packing_in_progress || '—' },
+    { l:'Cargo/ICD',   s: r.Cargo_Reached_ICD_CFS ? 'done' : r.Processing_Packing_in_progress ? 'active' : 'pending',t: r.Cargo_Reached_ICD_CFS || '—' },
+    { l:'Departed',    s: r.Vessel_departed ? 'done' : (hasPD && !r.Vessel_departed) ? 'unknown' : r.Cargo_Reached_ICD_CFS ? 'active' : 'pending', t: r.Vessel_departed ? fmtDate(r.Vessel_departed) : (hasPD ? 'Not logged' : '—') },
+    { l:'Arrived',     s: r.Vessel_Arrival ? 'done'  : (hasPD && !r.Vessel_Arrival)  ? 'unknown' : 'pending',        t: r.Vessel_Arrival  ? fmtDate(r.Vessel_Arrival)  : (hasPD ? 'Not logged' : '—') },
+    { l:'Clearance',   s: r.Vessel_Clearance ? 'done': (hasPD && !r.Vessel_Clearance)? 'unknown' : 'pending',        t: r.Vessel_Clearance? fmtDate(r.Vessel_Clearance): (hasPD ? 'Not logged' : '—') },
+  ];
+  const d = [
+    { l:'PO raised',         s: r.PO_ID ? 'done' : 'pending',                                                         t: r.PO_ID || '—' },
+    { l:'SO created',        s: r.SO_Number ? 'done' : r.PO_ID ? 'active' : 'pending',                                t: r.SO_Number || '—' },
+    { l:'Invoice',           s: r.Invoice_Num ? 'done' : r.SO_Number ? 'active' : 'pending',                          t: r.Invoice_Num || '—' },
+    { l:'Docs to consignee', s: r.Vessel_departed ? 'done' : r.Invoice_Num ? 'active' : 'pending',                    t: r.Vessel_departed ? 'Sent' : '—' },
+    { l:'GRN',               s: r.Vessel_Clearance ? 'done' : hasPD ? 'active' : 'pending',                           t: hasPD ? (r.Vessel_Clearance ? 'Collected' : 'Pending') : '—' },
+  ];
+  const f = [
+    { l:'Advance paid', s: r.Purchase ? 'done' : 'pending',                                                                                                          t: r.Purchase ? 'Paid' : '—' },
+    { l:'CHA / FF',     s: r.Vessel_departed ? 'done' : r.Cargo_Reached_ICD_CFS ? 'active' : 'pending',                                                              t: r.Vessel_departed ? 'Paid' : '—' },
+    { l:'Collection',   s: dueScenario === 'overdue' ? 'block' : dueScenario === 'due' ? 'warn' : hasPD ? 'active' : 'pending',                                       t: r.Due_Date ? (r.Due_Status || r.Due_Date) : '—' },
+  ];
+
+  const pct = steps => Math.round(steps.filter(s=>s.s==='done').length / steps.length * 100);
+  const alerts = [];
+  if (scenario === 'gap') alerts.push({ type:'as-purple', msg:'Payment due is set but vessel fields are blank — trade may already be delivered. Ground team needs to log departure, arrival and clearance.' });
+  if (dueScenario === 'overdue') alerts.push({ type:'as-red',    msg:`Payment overdue since ${r.Due_Date}. ${r.Due_Status||''}. Escalate to collections team immediately.` });
+  if (dueScenario === 'due')     alerts.push({ type:'as-orange', msg:`Payment due ${r.Due_Date} — ${r.Due_Status}. Initiate collection follow-up now.` });
+
+  const syncMap = { active:'green', gap:'purple', overdue:'red', due:'orange', notstarted:'gray', completed:'green' };
+  const syncLbl = { active:'In sync', gap:'Data missing', overdue:'Overdue', due:'Due soon', notstarted:'Not started', completed:'Completed' };
+
+  return {
+    raw: r, scenario, dueScenario,
+    goodsSteps:g, docsSteps:d, fundsSteps:f,
+    goodsPct: pct(g), docsPct: pct(d), fundsPct: pct(f),
+    alerts, hasGap: scenario === 'gap',
+    syncType: syncMap[scenario]||'gray',
+    syncLabel: syncLbl[scenario]||'—',
+  };
+}
+
+function fmtDate(v) {
+  if (!v) return '—';
+  try { return new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}); } catch(e) { return v; }
+}
+
+// ── SUMMARY & COUNTS ──────────────────────────────────────────────────────────
+function updateSummary() {
+  document.getElementById('s-total').textContent   = allTrades.length;
+  document.getElementById('s-active').textContent  = allTrades.filter(t=>['active','completed'].includes(t.scenario)).length;
+  document.getElementById('s-gaps').textContent    = allTrades.filter(t=>t.scenario==='gap').length;
+  document.getElementById('s-due').textContent     = allTrades.filter(t=>t.dueScenario==='due').length;
+  document.getElementById('s-overdue').textContent = allTrades.filter(t=>t.dueScenario==='overdue').length;
+}
+function updateFilterCounts() {
+  document.getElementById('fc-active').textContent     = allTrades.filter(t=>['active','completed'].includes(t.scenario)).length;
+  document.getElementById('fc-gap').textContent        = allTrades.filter(t=>t.scenario==='gap').length;
+  document.getElementById('fc-due').textContent        = allTrades.filter(t=>t.dueScenario==='due').length;
+  document.getElementById('fc-overdue').textContent    = allTrades.filter(t=>t.dueScenario==='overdue').length;
+  document.getElementById('fc-notstarted').textContent = allTrades.filter(t=>t.scenario==='notstarted').length;
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function toggleFilter(btn) {
+  const f = btn.dataset.filter;
+  if (activeFilters.has(f)) { activeFilters.delete(f); btn.classList.remove('on'); btn.classList.add('off'); }
+  else { activeFilters.add(f); btn.classList.add('on'); btn.classList.remove('off'); }
+  applyFilters();
+}
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = allTrades.filter(t => {
+    let match = false;
+    if (activeFilters.has('active')     && ['active','completed'].includes(t.scenario)) match = true;
+    if (activeFilters.has('gap')        && t.scenario === 'gap')        match = true;
+    if (activeFilters.has('due')        && t.dueScenario === 'due')     match = true;
+    if (activeFilters.has('overdue')    && t.dueScenario === 'overdue') match = true;
+    if (activeFilters.has('notstarted') && t.scenario === 'notstarted') match = true;
+    if (!match) return false;
+    if (q) {
+      const hay = [t.raw.Invoice_Num,t.raw.End_Buyer,t.raw.SKU,t.raw.SKU_Item,t.raw.PO_ID,t.raw.SO_Number].map(v=>(v||'').toLowerCase()).join(' ');
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  renderTrades(filtered);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+const ST = {
+  done:    { mc:'ms-done',    dc:'ds-done',    mi:'<i class="ti ti-check" style="font-size:7px"></i>',           di:'<i class="ti ti-check" style="font-size:8px"></i>' },
+  active:  { mc:'ms-active',  dc:'ds-active',  mi:'<i class="ti ti-player-play" style="font-size:7px"></i>',    di:'<i class="ti ti-player-play" style="font-size:8px"></i>' },
+  warn:    { mc:'ms-warn',    dc:'ds-warn',    mi:'<i class="ti ti-alert-triangle" style="font-size:7px"></i>', di:'<i class="ti ti-alert-triangle" style="font-size:8px"></i>' },
+  block:   { mc:'ms-block',   dc:'ds-block',   mi:'<i class="ti ti-x" style="font-size:7px"></i>',              di:'<i class="ti ti-x" style="font-size:8px"></i>' },
+  pending: { mc:'ms-pending', dc:'ds-pending', mi:'',                                                            di:'' },
+  unknown: { mc:'ms-unknown', dc:'ds-unknown', mi:'<i class="ti ti-question-mark" style="font-size:7px"></i>',  di:'<i class="ti ti-question-mark" style="font-size:8px"></i>' },
+};
+
+function buildBar(steps, fillCls, hasGap) {
+  const n = steps.length;
+  const donePct = Math.max(4, steps.filter(s=>s.s==='done').length/n*100);
+  let h = `<div class="progress-track"><div class="progress-fill ${hasGap?'fill-stripe':fillCls}" style="width:${donePct}%"></div>`;
+  steps.forEach((s,i) => {
+    const pct = n===1 ? 50 : (i/(n-1))*100;
+    const st = ST[s.s]||ST.pending;
+    h += `<div class="ms" style="left:${Math.min(Math.max(pct,2),98)}%">
+      <div class="ms-dot ${st.mc}">${st.mi}</div>
+      <div class="ms-tip">${s.l}: ${s.t}</div>
+    </div>`;
+  });
+  return h + '</div>';
+}
+
+function buildDetailSteps(steps) {
+  return steps.map(s => {
+    const st = ST[s.s]||ST.pending;
+    const isLate    = /overdue|blocked|not sent/i.test(s.t);
+    const isUnknown = s.s === 'unknown';
+    return `<div class="detail-step">
+      <div class="ds-icon ${st.dc}">${st.di}</div>
+      <div><div class="ds-label">${s.l}</div><div class="ds-time ${isLate?'late':isUnknown?'unknown':''}">${s.t}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function syncBadge(t) {
+  const cls = { green:'badge-green', orange:'badge-orange', red:'badge-red', blue:'badge-blue', purple:'badge-purple', gray:'badge-gray' };
+  const ico = { green:'ti-link', orange:'ti-clock-exclamation', red:'ti-alert-circle', blue:'ti-circle-check', purple:'ti-question-mark', gray:'ti-circle-dashed' };
+  return `<span class="badge ${cls[t.syncType]||'badge-gray'}"><i class="ti ${ico[t.syncType]||'ti-circle-dashed'}"></i>${t.syncLabel}</span>`;
+}
+
+function dueBadge(r, dueScenario) {
+  if (!r.Due_Status && !r.Due_Date) return '';
+  if (dueScenario === 'overdue') return `<span class="badge badge-red"><i class="ti ti-alert-circle"></i>Overdue</span>`;
+  if (dueScenario === 'due')     return `<span class="badge badge-orange"><i class="ti ti-clock"></i>${r.Due_Status}</span>`;
+  return `<span class="badge badge-gray"><i class="ti ti-calendar"></i>${r.Due_Status||r.Due_Date}</span>`;
+}
+
+function renderTrades(trades) {
+  const list = document.getElementById('trade-list');
+  if (!trades.length) {
+    list.innerHTML = `<div class="state-screen"><i class="ti ti-mood-empty" style="color:var(--text3)"></i><p>No trades match your filters.</p></div>`;
+    return;
+  }
+  list.innerHTML = trades.map(t => {
+    const r = t.raw;
+    const uid = (r.Invoice_Num||r.SO_Number||r.PO_ID||Math.random()).toString().replace(/[^a-z0-9]/gi,'_');
+    const titleId = r.Invoice_Num || r.SO_Number || '—';
+    const meta = [r.End_Buyer, r.SKU_Item||r.SKU, r.QTY?r.QTY+' MT':null, r.Invoice_Value?(r.Invoice_Currency+' '+Number(r.Invoice_Value).toLocaleString()):null].filter(Boolean).join(' · ');
+    const alertsHtml = t.alerts.map(a=>`<div class="alert-strip ${a.type}"><i class="ti ti-alert-triangle"></i><span>${a.msg}</span></div>`).join('');
+    return `<div class="trade-card${t.scenario==='notstarted'?' not-started':''}" id="card-${uid}" onclick="toggleDetail(this)">
+      <div class="trade-top">
+        <div class="trade-header">
+          <div>
+            <div class="trade-id">${titleId}</div>
+            <div class="trade-meta">${meta}</div>
+          </div>
+          <div class="lanes">
+            <div class="lane-row"><div class="lane-label"><div class="lane-dot" style="background:var(--goods)"></div>Goods</div>${buildBar(t.goodsSteps,'fill-goods',t.hasGap)}<div class="lane-pct">${t.goodsPct}%</div></div>
+            <div class="lane-row"><div class="lane-label"><div class="lane-dot" style="background:var(--docs)"></div>Docs</div>${buildBar(t.docsSteps,'fill-docs',false)}<div class="lane-pct">${t.docsPct}%</div></div>
+            <div class="lane-row"><div class="lane-label"><div class="lane-dot" style="background:var(--funds)"></div>Funds</div>${buildBar(t.fundsSteps,'fill-funds',false)}<div class="lane-pct">${t.fundsPct}%</div></div>
+          </div>
+          <div class="trade-badge-row">${syncBadge(t)}${dueBadge(r, t.dueScenario)}</div>
+        </div>
+      </div>
+      ${alertsHtml}
+      <div class="detail-panel">
+        <div class="detail-grid">
+          <div><div class="detail-section-title"><div class="lane-dot" style="background:var(--goods)"></div>Goods milestones</div>${buildDetailSteps(t.goodsSteps)}</div>
+          <div><div class="detail-section-title"><div class="lane-dot" style="background:var(--docs)"></div>Document milestones</div>${buildDetailSteps(t.docsSteps)}</div>
+          <div><div class="detail-section-title"><div class="lane-dot" style="background:var(--funds)"></div>Funds milestones</div>${buildDetailSteps(t.fundsSteps)}</div>
+        </div>
+        <div class="raw-section">
+          <div class="raw-item"><label>Invoice</label><p class="hl">${r.Invoice_Num||'—'}</p></div>
+          <div class="raw-item"><label>PO / SO</label><p>${r.PO_ID||'—'} / ${r.SO_Number||'—'}</p></div>
+          <div class="raw-item"><label>Value</label><p class="hl">${r.Invoice_Currency||''} ${r.Invoice_Value?Number(r.Invoice_Value).toLocaleString():'—'}</p></div>
+          <div class="raw-item"><label>Due date</label><p class="${t.dueScenario==='overdue'?'c-red':t.dueScenario==='due'?'c-ora':'c-grn'}">${r.Due_Date||'—'}</p></div>
+          <div class="raw-item"><label>Status</label><p class="${t.dueScenario==='overdue'?'c-red':t.dueScenario==='due'?'c-ora':'c-grn'}">${r.Due_Status||'—'}</p></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDetail(card) {
+  const panel = card.querySelector('.detail-panel');
+  const wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.detail-panel.open').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.trade-card.expanded').forEach(c=>c.classList.remove('expanded'));
+  if (!wasOpen) { panel.classList.add('open'); card.classList.add('expanded'); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="ti ti-check"></i>${msg}`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
