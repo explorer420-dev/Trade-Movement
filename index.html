@@ -321,6 +321,51 @@
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg3); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── TAB BAR ── */
+  .tab-bar { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  .tab-btn { display: flex; align-items: center; gap: 6px; padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--text3); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: var(--font); margin-bottom: -1px; transition: all 0.15s; }
+  .tab-btn:hover { color: var(--text2); }
+  .tab-btn.t-active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+  .tab-view { display: none; }
+  .tab-view.t-active { display: block; }
+
+  /* ── STAGE ANALYSIS ── */
+  .stage-analysis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .sa-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .sa-table { width: 100%; border-collapse: collapse; }
+  .sa-table th { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 6px 6px 0; text-align: left; border-bottom: 1px solid var(--border); }
+  .sa-table td { padding: 5px 6px 5px 0; vertical-align: middle; border-bottom: 1px solid var(--border); }
+  .sa-table tr:last-child td { border-bottom: none; }
+  .sa-stage { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+  .sa-time { font-size: 11px; font-family: var(--mono); color: var(--text2); }
+  .sa-sla  { font-size: 11px; font-family: var(--mono); color: var(--text3); }
+  .sa-row-active .sa-stage { color: var(--blue); font-weight: 600; }
+  .sa-row-pending .sa-stage { color: var(--text3); font-weight: 400; }
+  .sla-na   { font-size: 11px; color: var(--text3); }
+  .sla-ok   { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--green-mid); background: var(--green-dim); padding: 2px 6px; border-radius: 8px; }
+  .sla-over { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; color: #B56A00; background: var(--orange-dim); padding: 2px 6px; border-radius: 8px; }
+  .sla-ok i, .sla-over i { font-size: 9px; }
+
+  /* ── DATA SOURCES VIEW ── */
+  .ds-page { padding: 24px 0; }
+  .ds-page-intro { margin-bottom: 20px; }
+  .ds-page-intro h2 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .ds-page-intro p { font-size: 12px; color: var(--text2); line-height: 1.6; max-width: 640px; }
+  .ds-flow-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 14px; overflow: hidden; box-shadow: var(--shadow); }
+  .ds-flow-header { padding: 12px 18px; display: flex; align-items: center; gap: 8px; background: var(--bg3); border-bottom: 1px solid var(--border); }
+  .ds-flow-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .ds-tbl { width: 100%; border-collapse: collapse; }
+  .ds-tbl th { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 18px; text-align: left; background: var(--bg3); border-bottom: 1px solid var(--border); }
+  .ds-tbl td { padding: 9px 18px; font-size: 12px; color: var(--text2); border-bottom: 1px solid var(--border); }
+  .ds-tbl tr:last-child td { border-bottom: none; }
+  .ds-tbl td:first-child { font-weight: 600; color: var(--text); }
+  .ds-tbl td:nth-child(3) { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .src-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .src-system  { background: var(--green-dim);  color: var(--green-mid); }
+  .src-partial { background: var(--orange-dim); color: #8C4D00; }
+  .src-todo    { background: var(--danger-dim); color: var(--danger); }
+  .ds-note { font-size: 11px; color: var(--text3); padding: 10px 18px; background: var(--bg3); border-top: 1px solid var(--border); font-style: italic; }
 </style>
 </head>
 <body>
@@ -648,7 +693,13 @@ z"/>
     </div>
   </header>
 
+  <nav class="tab-bar">
+    <button class="tab-btn t-active" id="tab-trades" onclick="switchTab('trades')"><i class="ti ti-layout-list"></i>Trades</button>
+    <button class="tab-btn" id="tab-datasources" onclick="switchTab('datasources')"><i class="ti ti-database"></i>Data Sources</button>
+  </nav>
+
   <main class="main">
+    <div id="trade-view" class="tab-view t-active">
     <div class="summary-strip">
       <div class="summary-card sc-blue">  <div class="sc-label">Total trades</div><div class="sc-value blue"   id="s-total">—</div><div class="sc-sub">All records loaded</div></div>
       <div class="summary-card sc-green"> <div class="sc-label">Active</div>       <div class="sc-value green"  id="s-active">—</div><div class="sc-sub">In progress</div></div>
@@ -684,6 +735,58 @@ z"/>
     <div class="trade-list" id="trade-list">
       <div class="state-screen"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite;color:var(--green)"></i><p>Loading trade data...</p></div>
     </div>
+    </div><!-- /trade-view -->
+
+    <div id="data-sources-view" class="tab-view ds-page">
+      <div class="ds-page-intro">
+        <h2>Data Sources — Stage Availability</h2>
+        <p>Shows which stages can be derived from the Redash query (Query 51830) and which require manual input or additional columns. Partial entries have stage presence but no timestamp in the current query.</p>
+      </div>
+
+      <div class="ds-flow-card">
+        <div class="ds-flow-header"><div class="lane-dot" style="background:var(--goods)"></div><span class="ds-flow-label">Goods Flow</span></div>
+        <table class="ds-tbl">
+          <thead><tr><th>Stage</th><th>At Stage?</th><th>Time at Stage source</th><th>Data Source</th></tr></thead>
+          <tbody>
+            <tr><td>Purchase</td><td>✓ Derived</td><td>Entry point — N/A</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Demand gen</td><td>✓ Derived</td><td><code>Demand_Generation</code> duration string</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Supplier map</td><td>✓ Derived</td><td><code>Supplier_Mapping</code> duration string</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Processing</td><td>✓ Derived</td><td><code>Processing_Packing_in_progress</code> duration string</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Cargo/ICD</td><td>✓ Derived</td><td><code>Cargo_Reached_ICD_CFS</code> duration string</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Departed</td><td>✓ Derived</td><td>Calc: <code>Vessel_departed</code> − reconstructed cargo complete</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Arrived</td><td>✓ Derived</td><td>Calc: <code>Vessel_Arrival − Vessel_departed</code></td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Clearance</td><td>✓ Derived</td><td>Calc: <code>Vessel_Clearance − Vessel_Arrival</code></td><td><span class="src-badge src-system">System</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ds-flow-card">
+        <div class="ds-flow-header"><div class="lane-dot" style="background:var(--docs)"></div><span class="ds-flow-label">Documents Flow</span></div>
+        <table class="ds-tbl">
+          <thead><tr><th>Stage</th><th>At Stage?</th><th>Time at Stage source</th><th>Data Source</th></tr></thead>
+          <tbody>
+            <tr><td>PO raised</td><td>✓ <code>PO_ID</code> presence</td><td>No creation timestamp in Redash — shows —</td><td><span class="src-badge src-partial">Partial</span></td></tr>
+            <tr><td>SO created</td><td>✓ <code>SO_Number</code> presence</td><td>No creation timestamp in Redash — shows —</td><td><span class="src-badge src-partial">Partial</span></td></tr>
+            <tr><td>Invoice</td><td>✓ <code>Invoice_Num</code> presence</td><td>No creation timestamp in Redash — shows —</td><td><span class="src-badge src-partial">Partial</span></td></tr>
+            <tr><td>Docs to consignee</td><td>✓ <code>Vessel_departed</code></td><td>No invoice date available — shows —</td><td><span class="src-badge src-partial">Partial</span></td></tr>
+            <tr><td>GRN</td><td>✓ <code>Vessel_Clearance</code></td><td>Calc: <code>Vessel_Clearance − Vessel_Arrival</code></td><td><span class="src-badge src-system">System</span></td></tr>
+          </tbody>
+        </table>
+        <div class="ds-note">To unlock time-at-stage for PO / SO / Invoice: add <code>PO_Date</code>, <code>SO_Date</code>, <code>Invoice_Date</code> columns to Redash Query 51830.</div>
+      </div>
+
+      <div class="ds-flow-card">
+        <div class="ds-flow-header"><div class="lane-dot" style="background:var(--funds)"></div><span class="ds-flow-label">Funds Flow</span></div>
+        <table class="ds-tbl">
+          <thead><tr><th>Stage</th><th>At Stage?</th><th>Time at Stage source</th><th>Data Source</th></tr></thead>
+          <tbody>
+            <tr><td>Advance paid</td><td>✓ <code>Purchase</code> date</td><td>Entry point — N/A</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>CHA / FF</td><td>✓ <code>Vessel_departed</code></td><td>Calc: <code>Vessel_departed</code> − reconstructed cargo complete</td><td><span class="src-badge src-system">System</span></td></tr>
+            <tr><td>Collection</td><td>✓ <code>Due_Date</code> / <code>Due_Status</code></td><td><code>Due_Status</code> shows days remaining / overdue</td><td><span class="src-badge src-system">System</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /data-sources-view -->
   </main>
 </div>
 
@@ -695,6 +798,13 @@ const WORKER_URL   = 'https://ninjacart-trade-proxy.prashanthburgula.workers.dev
 const ALLOWED_DOMAIN = 'ninjacart.com';
 const GOOGLE_CLIENT_ID = '1052779484171-1latevflfb33bfvotju0rticeq4cdprg.apps.googleusercontent.com';
 const USE_DEV_DATA = false;
+
+// TODO: fill in acceptable days per stage — null = not configured, shows — in Status column
+const STAGE_SLA = {
+  goods: { 'Demand gen': null, 'Supplier map': null, 'Processing': null, 'Cargo/ICD': null, 'Departed': null, 'Arrived': null, 'Clearance': null },
+  docs:  { 'Docs to consignee': null, 'GRN': null },
+  funds: { 'CHA / FF': null, 'Collection': null },
+};
 
 let allTrades = [];
 let activeFilters = new Set(['active','gap','due','overdue','notstarted']);
@@ -737,9 +847,13 @@ function showApp() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  if (location.protocol === 'file:') {
+    currentUser = { name: 'Dev User', email: 'dev@ninjacart.com' };
+    showApp();
+    return;
+  }
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential });
   google.accounts.id.renderButton(document.querySelector('.google-btn'), { type: 'standard' });
-
 });
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -832,6 +946,108 @@ function mapRow(r) {
 function fmtDate(v) {
   if (!v) return '—';
   try { return new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}); } catch(e) { return v; }
+}
+
+// ── STAGE ANALYSIS ────────────────────────────────────────────────────────────
+function parseDur(str) {
+  if (!str || str === '—') return null;
+  const d = +(str.match(/(\d+)d/) || [0,0])[1];
+  const h = +(str.match(/(\d+)h/) || [0,0])[1];
+  const m = +(str.match(/(\d+)m/) || [0,0])[1];
+  return (d * 86400 + h * 3600 + m * 60) * 1000;
+}
+
+function fmtDur(ms) {
+  if (ms === null || ms === undefined || ms < 0) return '—';
+  const d = Math.floor(ms / 86400000);
+  const h = Math.floor((ms % 86400000) / 3600000);
+  return d > 0 ? `${d}d ${h}h` : `${h}h`;
+}
+
+function slaChip(timeMs, slaDays) {
+  if (slaDays === null || slaDays === undefined || timeMs === null) return '<span class="sla-na">—</span>';
+  if (timeMs / 86400000 > slaDays) return '<span class="sla-over"><i class="ti ti-alert-triangle"></i>Over SLA</span>';
+  return '<span class="sla-ok"><i class="ti ti-check"></i>OK</span>';
+}
+
+function buildStageTable(trade) {
+  const r = trade.raw;
+  const now = Date.now();
+
+  const tPurchase    = r.Purchase        ? new Date(r.Purchase).getTime()        : null;
+  const durDG        = parseDur(r.Demand_Generation);
+  const durSM        = parseDur(r.Supplier_Mapping);
+  const durPP        = parseDur(r.Processing_Packing_in_progress);
+  const durCargo     = parseDur(r.Cargo_Reached_ICD_CFS);
+  const tSMStart     = (tPurchase   && durDG)    ? tPurchase  + durDG    : null;
+  const tPPStart     = (tSMStart    && durSM)    ? tSMStart   + durSM    : null;
+  const tCargoStart  = (tPPStart    && durPP)    ? tPPStart   + durPP    : null;
+  const tDepartStart = (tCargoStart && durCargo) ? tCargoStart + durCargo : null;
+  const tVDep        = r.Vessel_departed  ? new Date(r.Vessel_departed).getTime()  : null;
+  const tVArr        = r.Vessel_Arrival   ? new Date(r.Vessel_Arrival).getTime()   : null;
+  const tVClr        = r.Vessel_Clearance ? new Date(r.Vessel_Clearance).getTime() : null;
+
+  const gs = trade.goodsSteps;
+  const ds = trade.docsSteps;
+  const fs = trade.fundsSteps;
+
+  // Time-at-stage per step (in ms, null = unavailable)
+  const goodsMs = [
+    null, // Purchase: entry point
+    gs[1].s==='done' ? durDG    : gs[1].s==='active' && tPurchase   ? now-tPurchase   : null,
+    gs[2].s==='done' ? durSM    : gs[2].s==='active' && tSMStart    ? now-tSMStart    : null,
+    gs[3].s==='done' ? durPP    : gs[3].s==='active' && tPPStart    ? now-tPPStart    : null,
+    gs[4].s==='done' ? durCargo : gs[4].s==='active' && tCargoStart ? now-tCargoStart : null,
+    gs[5].s==='done' && tVDep && tDepartStart ? tVDep-tDepartStart : gs[5].s==='active' && tDepartStart ? now-tDepartStart : null,
+    gs[6].s==='done' && tVArr && tVDep ? tVArr-tVDep : gs[6].s==='active' && tVDep ? now-tVDep : null,
+    gs[7].s==='done' && tVClr && tVArr ? tVClr-tVArr : gs[7].s==='active' && tVArr ? now-tVArr : null,
+  ];
+  // Docs: PO/SO/Invoice/DocsToConsignee have no timestamps
+  const docsMs = [null, null, null, null,
+    ds[4].s==='done' && tVClr && tVArr ? tVClr-tVArr : ds[4].s==='active' && tVArr ? now-tVArr : null,
+  ];
+  // Funds: CHA/FF uses vessel departure; Collection shows Due_Status text
+  const fundsMs = [
+    null,
+    fs[1].s==='done' && tVDep && tDepartStart ? tVDep-tDepartStart : fs[1].s==='active' && tDepartStart ? now-tDepartStart : null,
+    null,
+  ];
+
+  function saRow(step, timeMs, slaDays, overrideTime) {
+    const s = step.s;
+    const isActive  = s === 'active' || s === 'warn' || s === 'block';
+    const isDone    = s === 'done';
+    const isPending = !isActive && !isDone;
+    const rowCls    = isActive ? 'sa-row-active' : isPending ? 'sa-row-pending' : '';
+    const icon      = isDone   ? `<i class="ti ti-check" style="font-size:9px;color:var(--green)"></i>`
+                    : isActive ? `<i class="ti ti-player-play" style="font-size:9px;color:var(--blue)"></i>`
+                    :            `<span style="width:9px;display:inline-block"></span>`;
+    const timeStr   = overrideTime || (timeMs !== null ? fmtDur(timeMs) : '—');
+    const slaStr    = slaDays !== null && slaDays !== undefined ? `${slaDays}d` : '—';
+    const chipSrc   = overrideTime ? null : timeMs;
+    const chip      = (isDone || isActive) ? slaChip(chipSrc, slaDays) : '<span class="sla-na">—</span>';
+    return `<tr class="${rowCls}"><td><div class="sa-stage">${icon}${step.l}</div></td><td class="sa-time">${timeStr}</td><td class="sa-sla">${slaStr}</td><td>${chip}</td></tr>`;
+  }
+
+  function saSection(title, color, steps, timesMs, slaMap, collectionIdx) {
+    const rows = steps.map((step, i) => {
+      const overrideTime = (collectionIdx === i && step.t !== '—') ? step.t : null;
+      return saRow(step, timesMs[i], slaMap[step.l] !== undefined ? slaMap[step.l] : null, overrideTime);
+    }).join('');
+    return `<div>
+      <div class="sa-title"><div class="lane-dot" style="background:${color}"></div>${title}</div>
+      <table class="sa-table">
+        <thead><tr><th>Stage</th><th>Time at Stage</th><th>SLA</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  return `<div class="stage-analysis">
+    ${saSection('Goods Flow',     'var(--goods)',  gs, goodsMs, STAGE_SLA.goods)}
+    ${saSection('Documents Flow', 'var(--docs)',   ds, docsMs,  STAGE_SLA.docs)}
+    ${saSection('Funds Flow',     'var(--funds)',  fs, fundsMs, STAGE_SLA.funds, 2)}
+  </div>`;
 }
 
 // ── SUMMARY & COUNTS ──────────────────────────────────────────────────────────
@@ -955,6 +1171,7 @@ function renderTrades(trades) {
       </div>
       ${alertsHtml}
       <div class="detail-panel">
+        ${buildStageTable(t)}
         <div class="detail-grid">
           <div><div class="detail-section-title"><div class="lane-dot" style="background:var(--goods)"></div>Goods milestones</div>${buildDetailSteps(t.goodsSteps)}</div>
           <div><div class="detail-section-title"><div class="lane-dot" style="background:var(--docs)"></div>Document milestones</div>${buildDetailSteps(t.docsSteps)}</div>
@@ -978,6 +1195,13 @@ function toggleDetail(card) {
   document.querySelectorAll('.detail-panel.open').forEach(p=>p.classList.remove('open'));
   document.querySelectorAll('.trade-card.expanded').forEach(c=>c.classList.remove('expanded'));
   if (!wasOpen) { panel.classList.add('open'); card.classList.add('expanded'); }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('t-active'));
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('t-active'));
+  document.getElementById('tab-' + name).classList.add('t-active');
+  document.getElementById(name === 'trades' ? 'trade-view' : 'data-sources-view').classList.add('t-active');
 }
 
 function showToast(msg) {
